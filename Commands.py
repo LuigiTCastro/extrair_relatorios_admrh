@@ -72,7 +72,7 @@ def extract_actives(driver):
     # # BOTÃO EXECUTAR
     execute_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExecutar")))
     execute_button.click()
-    dp.time.sleep(10)
+    dp.time.sleep(15)
 
 
 # EXPORTAR COMO EXCEL
@@ -164,6 +164,7 @@ def wait_handle_workshet():
             handle_worksheet(FILE_PATH)
         except Exception as error:
             dp.pya.alert(f'Erro ao tentar manipular o arquivo: {error}')
+            print(error)
         finally:
             progress.stop()
             box.destroy()
@@ -184,4 +185,5 @@ def run_application(user, password):
         driver.quit()
     except Exception as error:
         dp.pya.alert(f'Erro ao executar a aplicação: {error}')
+        print(error)
 
