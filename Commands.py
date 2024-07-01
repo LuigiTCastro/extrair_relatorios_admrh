@@ -82,7 +82,7 @@ def export_as_excel(driver):
     export_button.click()
 
     # BOTÃO EXPORTAR
-    xlsx_option = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.LINK_TEXT, "XLSX")))
+    xlsx_option = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.LINK_TEXT, "Exportar para XLSX")))
     xlsx_option.click()
     dp.time.sleep(5)
 
@@ -152,6 +152,7 @@ def wait_handle_workshet():
     dp.pya.alert('O arquivo xlsx será manipulado. Clique em Ok.')
     box = dp.tk.Tk()
     box.title('Carregando')
+    dp.center_window(box)
     progress = dp.ttk.Progressbar(box, orient='horizontal', length=250, mode='determinate')
     progress.pack(pady=20)
     
