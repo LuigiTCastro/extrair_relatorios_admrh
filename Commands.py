@@ -42,37 +42,68 @@ def access_system(driver, user, password):
 
 
 # EXTRAIR RELATÓRIO DE ATIVOS
-def extract_actives(driver):
+def extract_report(driver, filter):
     # LIMPAR TUDO
-    # clear_all = WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnLimpar")))
-    # clear_all.click()
+    try:
+        dp.time.sleep(1)
+        clear_all = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnLimpar")))
+        clear_all.click()
+        print("Botão de limpar tudo clicado.")
+        dp.time.sleep(2)
+    except Exception as error:
+        print("Erro ao tentar clicar em 'LIMPAR TUDO'")
+        dp.pya.alert("Erro ao tentar clicar em 'LIMPAR TUDO'")
     
     # CAMPO SITUAÇÃO
-    situation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14834_txt_cod')))
-    situation_field.send_keys('0') # SITUAÇÃO ATIVOS
-    dp.pya.press('tab')
-    dp.time.sleep(2)
-    clear_situation = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:limparSelecao_14834")))
-    clear_situation.click()
-    dp.time.sleep(2)
-    situation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14834_txt_cod')))
-    situation_field.send_keys('0') # SITUAÇÃO ATIVOS
+    if filter == 'ATIVOS':
+        try:
+            situation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14834_txt_cod')))
+            situation_field.send_keys('0') # SITUAÇÃO ATIVOS
+            print("Situação dos colaboradores aplicada.")
+            dp.pya.press('tab')
+            dp.time.sleep(2)
+        except Exception as error:
+            print("Erro ao tentar inserir 'SITUAÇÃO'")
+            dp.pya.alert("Erro ao tentar inserir 'SITUAÇÃO'")
     
     # CAMPO VÍNCULO
-    relation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14836_txt_cod')))
-    relation_field.send_keys('4') # VÍNCULO TERCEIRIZADOS
-    dp.pya.press('tab')
-    dp.time.sleep(2)
-    clear_relation = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:limparSelecao_14836")))
-    clear_relation.click()
-    dp.time.sleep(2)
-    relation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14836_txt_cod')))
-    relation_field.send_keys('4') # VÍNCULO TERCEIRIZADOS
+    try:
+        relation_field = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, 'form:lovCreator_14836_txt_cod')))
+        relation_field.send_keys('4') # VÍNCULO TERCEIRIZADOS
+        print("Vínculo de terceirizados aplicado.")
+        dp.pya.press('tab')
+        dp.time.sleep(2)
+    except Exception as error:
+        print("Erro ao tentar inserir 'VÍNCULO'")
+        dp.pya.alert("Erro ao tentar inserir 'VÍNCULO'")
+        
+    # FILTRO
+    try:
+        dp.time.sleep(1)
+        radio_buttons = dp.WebDriverWait(driver, 10).until(dp.EC.presence_of_all_elements_located((dp.By.XPATH, "//span[@class='ui-radiobutton-icon ui-icon ui-icon-blank ui-c']")))
+        for index, radio_button in enumerate(radio_buttons):
+            if filter == 'ATIVOS':
+                if index == 5:
+                    radio_button.click()
+                    print("Filtro de ativos selecionado com sucesso.")
+                    break
+            elif filter == 'GERAL':
+                if index == 4:
+                    radio_button.click()
+                    print("Filtro geral selecionado com sucesso.")
+                    break
+    except Exception as error:
+        print("Erro ao tentar inserir 'FILTRO'")
+        dp.pya.alert("Erro ao tentar inserir 'FILTRO'")
 
-    # # BOTÃO EXECUTAR
-    execute_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExecutar")))
-    execute_button.click()
-    dp.time.sleep(15)
+    # BOTÃO EXECUTAR
+    try:
+        execute_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExecutar")))
+        execute_button.click()
+        dp.time.sleep(15)
+    except Exception as error:
+        print("Erro ao tentar clicar no botão 'EXECUTAR'")
+        dp.pya.alert("Erro ao tentar clicar no botão 'EXECUTAR'")
 
 
 # EXPORTAR COMO EXCEL
@@ -88,9 +119,9 @@ def export_as_excel(driver):
 
 
 # ACESSAR SISTEMA > EXTRAIR RELATÓRIO > EXPORTAR COMO EXCEL
-def handle_website_1(driver, user, password):
+def handle_website_1(driver, user, password, filter):
     access_system(driver, user, password)
-    extract_actives(driver)
+    extract_report(driver, filter)
     export_as_excel(driver)
         
       
@@ -124,7 +155,7 @@ def get_downloaded_file(download_dir):
 def handle_worksheet(file_path):
     # PANDAS
     worksheet = dp.pd.read_excel(file_path, sheet_name=SHEET_NAME)
-    wished_columns = ['Matrícula','CPF','Nome','E-mail','Dt. Admissão','Função', 'Cod. Setor', 'Setor']
+    wished_columns = ['Matrícula','CPF','Nome','E-mail','Dt. Admissão','Função', 'Cod. Setor', 'Setor', 'Convênio']
     # Matrícula, CPF, Nome, Sexo, Estado Civil, Raça/Cor, Deficiência, CEP, Telefone, Celular, E-mail, Vinculo, Desc. Vínculo, Dt. Admissão, Dt. Nascimento, RG (Ident), Órgão Emissor, Data de Emissão, PIS, CNH, Vencimento, CNH, Cat. CNH, Cidade, Bairro, Logradouro, Número, Complemento, Padrão, Nivel, Cargo, Função, Cod. Setor, Setor, Cod. Setor Superior, Setor Superior, Salbase, Situação, Data Afast, Agencia, Pgto., Conta Pgto., Tipo Conta, Tipo, Pagamento, Padrão Função, Título, Zona, sessao, Órgão Exp, Pai, Mãe, Cônjuge	CPF Cônjuge	Naturalidade	UF/Nascimento	Nacionalidade	Jurisdiçao	Horário	Desc. Horário	Horas Semanais	Horas Mensais	Grau Instrução	Convênio	Data Fim Contrato	Núm. Carteira de Trabalho	Série Carteira de Trabalho 	UF Carteira de Trabalho	CBO	CBO Descrição	Relogio	Relogio Descrição	Nº Cartão	Tipo Admissão Inativo	Salário Anterior	NRO_LEI	DESC_LEI	NM_TIP_APOIO	NM_TIP_CLASSSEPLAG	Ident. Gênero
     sintetic_worksheet = worksheet.loc[:, wished_columns]
     
@@ -178,13 +209,14 @@ def wait_handle_workshet():
 
 
 # EXECUTA TUDO E +
-def run_application(user, password):
+def run_application(user, password, filter):
     try:
         driver = create_driver()
-        handle_website_1(driver, user, password)
+        handle_website_1(driver, user, password, filter)
         wait_handle_workshet()
         driver.quit()
     except Exception as error:
         dp.pya.alert(f'Erro ao executar a aplicação: {error}')
         print(error)
+
 

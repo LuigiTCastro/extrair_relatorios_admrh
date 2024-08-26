@@ -15,7 +15,14 @@ def center_window(window):
     
 def on_button_click1(box, user, password):
     box.destroy()
-    dp.run_application(user, password)
+    filter = 'ATIVOS'
+    dp.run_application(user, password, filter)
+
+    
+def on_button_click2(box, user, password):
+    box.destroy()
+    filter = 'GERAL'
+    dp.run_application(user, password, filter)
 
 
 def show_second_box(user, password):
@@ -24,20 +31,15 @@ def show_second_box(user, password):
     box.geometry('300x200')
     center_window(box)
     
-    label = dp.tk.Label(box)
-    label.pack(expand=True, pady=8)
+    label = dp.tk.Label(box, text="Selecione uma opção:")
+    label.pack(pady=15)
     
-    dp.tk.Label(box, text='Relatório sintético (modelo padrão)').pack(pady=4)
-    button1 = dp.tk.Button(box, text='Extrair', command=dp.partial(on_button_click1, box, user, password), width=25, height=1)
-    button1.pack(pady=4)
+    button1 = dp.tk.Button(box, text='Relatório de Ativos', command=dp.partial(on_button_click1, box, user, password), width=25, height=1)
+    button1.pack(pady=10)
     
-    dp.tk.Label(box).pack(pady=1)
+    button2 = dp.tk.Button(box, text='Relatório Geral', command=dp.partial(on_button_click2, box, user, password), width=25, height=1)
+    button2.pack(pady=10)
     
-    label = dp.tk.Label(box)
-    label.pack(expand=True, pady=8)
-    
-    # box.lift()
-    # box.attributes('-topmost', True)
     box.mainloop()
 
 
@@ -114,3 +116,4 @@ def on_submit(entry_user, entry_password, box):
         show_second_box(user, password)
     else:
         print("Usuário ou senha não encontrados.")
+
