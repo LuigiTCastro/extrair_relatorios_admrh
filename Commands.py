@@ -3,10 +3,9 @@ import Dependencies as dp
 
 dp.load_dotenv()
 
-FILE_PATH = dp.os.getenv('FILE_PATH')
+TARGET_SHEET = dp.os.getenv('TARGET_SHEET')
 PAGE_URL = dp.os.getenv('PAGE_URL')
 DOWNLOAD_DIR = dp.os.getenv('DOWNLOAD_DIR')
-SHEET_NAME = dp.os.getenv('SHEET_NAME')
 
 
 # ABRIR UMA PÁGINA CHROME
@@ -109,8 +108,16 @@ def extract_report(driver, filter):
 # EXPORTAR COMO EXCEL
 def export_as_excel(driver):
     # BOTÃO EXPORTAR
-    export_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExportar_menuButton")))
-    export_button.click()
+    try:
+        try:
+            export_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExportar_menuButton")))
+            export_button.click()
+        except:
+            export_button = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.ID, "form:btnExportar_menuButton")))
+            export_button.click()
+    except Exception as error:
+        print(f"Erro ao tentar clicar no 'Botão de Exportar': {error}")
+        dp.pya.alert(f"Erro ao tentar clicar no 'Botão de Exportar'")
 
     # BOTÃO EXPORTAR
     xlsx_option = dp.WebDriverWait(driver, 10).until(dp.EC.element_to_be_clickable((dp.By.LINK_TEXT, "Exportar para XLSX")))
@@ -152,34 +159,77 @@ def get_downloaded_file(download_dir):
 
 
 # MANIPULAR XLSX BAIXADO
-def handle_worksheet(file_path):
+def handle_worksheet(file_path, filter):
     # PANDAS
-    worksheet = dp.pd.read_excel(file_path, sheet_name=SHEET_NAME)
-    wished_columns = ['Matrícula','CPF','Nome','E-mail','Dt. Admissão','Função', 'Cod. Setor', 'Setor', 'Convênio']
-    # Matrícula, CPF, Nome, Sexo, Estado Civil, Raça/Cor, Deficiência, CEP, Telefone, Celular, E-mail, Vinculo, Desc. Vínculo, Dt. Admissão, Dt. Nascimento, RG (Ident), Órgão Emissor, Data de Emissão, PIS, CNH, Vencimento, CNH, Cat. CNH, Cidade, Bairro, Logradouro, Número, Complemento, Padrão, Nivel, Cargo, Função, Cod. Setor, Setor, Cod. Setor Superior, Setor Superior, Salbase, Situação, Data Afast, Agencia, Pgto., Conta Pgto., Tipo Conta, Tipo, Pagamento, Padrão Função, Título, Zona, sessao, Órgão Exp, Pai, Mãe, Cônjuge	CPF Cônjuge	Naturalidade	UF/Nascimento	Nacionalidade	Jurisdiçao	Horário	Desc. Horário	Horas Semanais	Horas Mensais	Grau Instrução	Convênio	Data Fim Contrato	Núm. Carteira de Trabalho	Série Carteira de Trabalho 	UF Carteira de Trabalho	CBO	CBO Descrição	Relogio	Relogio Descrição	Nº Cartão	Tipo Admissão Inativo	Salário Anterior	NRO_LEI	DESC_LEI	NM_TIP_APOIO	NM_TIP_CLASSSEPLAG	Ident. Gênero
-    sintetic_worksheet = worksheet.loc[:, wished_columns]
+    downloaded_sheet = dp.pd.read_excel(file_path, sheet_name='Report')
+    sintetic_columns = ['Matrícula','CPF','Nome','E-mail','Dt. Admissão','Função', 'Cod. Setor', 'Setor', 'Convênio']
+    sintetic_sheet = downloaded_sheet.loc[:, sintetic_columns]
     
+    if filter == 'ATIVOS':
+        try:
+            target_sheet = downloaded_sheet.copy()
+            SHEET_NAME='Ativos_Analítica'
+            with dp.pd.ExcelWriter(TARGET_SHEET, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                target_sheet.to_excel(writer, SHEET_NAME, index=False)
+                # format_worksheet(TARGET_SHEET, SHEET_NAME)
+            print(f'Aba {SHEET_NAME.upper()} sobrescrita com sucesso!')
+        except Exception as error:
+            print(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+            print(error)
+            dp.pya.alert(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+        try:    
+            target_sheet = sintetic_sheet.copy()
+            SHEET_NAME='Ativos_Sintética'
+            with dp.pd.ExcelWriter(TARGET_SHEET, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                target_sheet.to_excel(writer, SHEET_NAME, index=False)
+                # format_worksheet(TARGET_SHEET, SHEET_NAME)
+            print(f'Aba {SHEET_NAME.upper()} sobrescrita com sucesso!')
+        except Exception as error:
+            print(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+            print(error)
+            dp.pya.alert(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+            
+    elif filter == 'GERAL':
+        try:
+            target_sheet = downloaded_sheet.copy()
+            SHEET_NAME='Geral_Analítica'
+            with dp.pd.ExcelWriter(TARGET_SHEET, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                target_sheet.to_excel(writer, SHEET_NAME, index=False)
+                # format_worksheet(TARGET_SHEET, SHEET_NAME)
+            print(f'Aba {SHEET_NAME.upper()} sobrescrita com sucesso!')
+        except Exception as error:
+            print(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+            print(error)
+            dp.pya.alert(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+        
+        try:
+            target_sheet = sintetic_sheet.copy()
+            SHEET_NAME='Geral_Sintética'
+            with dp.pd.ExcelWriter(TARGET_SHEET, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                target_sheet.to_excel(writer, SHEET_NAME, index=False)
+                # format_worksheet(TARGET_SHEET, SHEET_NAME)
+            print(f'Aba {SHEET_NAME.upper()} sobrescrita com sucesso!')
+        except Exception as error:
+            print(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+            print(error)
+            dp.pya.alert(f'Erro ao tentar sobrescrever aba {SHEET_NAME.upper()}')
+    
+    dp.os.startfile(TARGET_SHEET)
+    
+    
+def format_worksheet(file_path, sheet_name):
     # OPENPYXL
     workbook = dp.load_workbook(file_path)
-    new_sheet = workbook.create_sheet('Sintetic')
-    datas = [wished_columns]
-    datas.extend(sintetic_worksheet.values.tolist())
-    
-    for line in datas:
-        new_sheet.append(line)
-        
+    worksheet = workbook[sheet_name]
     font = dp.Font(name='Calibri', size=10)
-    
-    for row in new_sheet.iter_rows():
+    for row in worksheet.iter_rows():
         for cell in row:
             cell.font = font
-    
     workbook.save(file_path)
-    dp.os.startfile(file_path)
 
 
 # AGUARDAR O TRATAMENTO DA PLANILHA
-def wait_handle_workshet():
+def wait_handle_worksheet(filter):
     dp.pya.alert('O arquivo xlsx será manipulado. Clique em Ok.')
     box = dp.tk.Tk()
     box.title('Carregando')
@@ -193,7 +243,7 @@ def wait_handle_workshet():
         progress.start()
         try:
             FILE_PATH = get_downloaded_file(DOWNLOAD_DIR)
-            handle_worksheet(FILE_PATH)
+            handle_worksheet(FILE_PATH, filter)
         except Exception as error:
             dp.pya.alert(f'Erro ao tentar manipular o arquivo: {error}')
             print(error)
@@ -213,7 +263,7 @@ def run_application(user, password, filter):
     try:
         driver = create_driver()
         handle_website_1(driver, user, password, filter)
-        wait_handle_workshet()
+        wait_handle_worksheet(filter)
         driver.quit()
     except Exception as error:
         dp.pya.alert(f'Erro ao executar a aplicação: {error}')

@@ -43,7 +43,6 @@ def show_second_box(user, password):
     box.mainloop()
 
 
-# PEGAR O LINK INSERIDO
 def get_entry_text(entry_user, entry_password, box):
     entry_user = entry_user.get()
     entry_password = entry_password.get()
